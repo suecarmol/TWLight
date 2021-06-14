@@ -26,6 +26,7 @@ from django.db import IntegrityError
 from django.db.models import Q
 from django.http import HttpResponseRedirect, HttpResponseBadRequest, Http404
 from django.utils.translation import gettext as _
+from django.utils.translation import ngettext
 from django.views.generic.base import View
 from django.views.generic.detail import DetailView
 from django.views.generic.edit import FormView, UpdateView
@@ -419,7 +420,11 @@ class SubmitApplicationView(_BaseSubmitApplicationView):
             messages.SUCCESS,
             # fmt: off
             # Translators: When a user applies for a set of resources, they receive this message if their application was filed successfully.
-            _("Your application has been submitted for review. Head over to <a href='{applications_url}'>My Applications</a> to view the status.")
+            ngettext(
+                "Your application has been submitted for review. Head over to <a href='{applications_url}'>My Applications</a> to view the status.",
+                "Your application has been submitted for review. Head over to <a href='{applications_url}'>My Applications</a> to view the status.",
+                1
+            )
             .format(
                 applications_url=reverse_lazy(
                     "users:my_applications",
@@ -484,7 +489,11 @@ class SubmitSingleApplicationView(_BaseSubmitApplicationView):
             messages.SUCCESS,
             # fmt: off
             # Translators: This message is shown to users once they've successfully submitted their application for review.
-            _("Your application has been submitted for review. Head over to <a href='{applications_url}'>My Applications</a> to view the status.")
+            ngettext(
+                "Your application has been submitted for review. Head over to <a href='{applications_url}'>My Applications</a> to view the status.",
+                "Your application has been submitted for review. Head over to <a href='{applications_url}'>My Applications</a> to view the status.",
+                1
+            )
             .format(
                 applications_url=reverse_lazy(
                     "users:my_applications",

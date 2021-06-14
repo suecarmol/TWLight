@@ -56,7 +56,9 @@
             {% if has_auths %}
               {% comment %}Translators: This text refers to the page containing the content a user is authorized to access. {% endcomment %}
               {% blocktrans trimmed %}
-                View the status of your access in <strong><a href="{{ library_url }}">My Library</a></strong> page.
+                  View the status of your access in <strong><a href="{{ library_url }}">My Library</a></strong> page.
+                  {% plural %}
+                  View the status of your access in <strong><a href="{{ library_url }}">My Library</a></strong> page.
               {% endblocktrans %}
               {% if has_open_apps %}
                 <hr />
@@ -65,7 +67,9 @@
             {% if has_open_apps %}
               {% comment %}Translators: This message is shown when a user has open applications, linking to their respective applications page. {% endcomment %}
               {% blocktrans trimmed %}
-                View the status of your application(s) on your <strong><a href="{{ applications_url }}">My Applications</a></strong> page.
+                  View the status of your application(s) on your <strong><a href="{{ applications_url }}">My Applications</a></strong> page.
+                {% plural %}
+                  View the status of your application(s) on your <strong><a href="{{ applications_url }}">My Applications</a></strong> page.
               {% endblocktrans %}
             {% endif %}
           </div>
@@ -388,7 +392,9 @@
                   {% if has_auths %}
                     {% comment %}Translators: This message is shown when a user has authorizations, linking to their respective collections page. {% endcomment %}
                     {% blocktrans trimmed %}
-                      View the status of your access on your <strong><a href="{{ library_url }}">My Library</a></strong> page.
+                        View the status of your access on your <strong><a href="{{ library_url }}">My Library</a></strong> page.
+                      {% plural %}
+                        View the status of your access on your <strong><a href="{{ library_url }}">My Library</a></strong> page.
                     {% endblocktrans %}
                     {% if has_open_apps %}
                       <hr />
@@ -397,7 +403,9 @@
                   {% if has_open_apps %}
                     {% comment %}Translators: This message is shown when a user has open applications, linking to their respective applications page. {% endcomment %}
                     {% blocktrans trimmed %}
-                      View the status of your application(s) on your <strong><a href="{{ applications_url }}">My Applications</a></strong> page.
+                        View the status of your application(s) on your <strong><a href="{{ applications_url }}">My Applications</a></strong> page.
+                      {% plural %}
+                        View the status of your application(s) on your <strong><a href="{{ applications_url }}">My Applications</a></strong> page.
                     {% endblocktrans %}
                   {% endif %}
                 </div>
