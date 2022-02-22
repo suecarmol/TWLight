@@ -434,7 +434,7 @@ class PartnerSuggestionView(FormView):
     success_url = reverse_lazy("suggest")
 
     def get_initial(self):
-        initial = super(PartnerSuggestionView, self).get_initial()
+        initial = super().get_initial()
         # @TODO: This sort of gets repeated in SuggestionForm.
         # We could probably be factored out to a common place for DRYness.
         if "suggested_company_name" in self.request.GET:
@@ -450,12 +450,9 @@ class PartnerSuggestionView(FormView):
 
         return initial
 
-    def get_queryset(self):
-        return Suggestion.objects.order_by("suggested_company_name")
-
     def get_context_data(self, **kwargs):
 
-        context = super(PartnerSuggestionView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
 
         user_qs = User.objects.select_related("editor")
         all_suggestions = (
