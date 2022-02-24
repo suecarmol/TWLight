@@ -685,21 +685,34 @@ class ListRenewalApplicationsView(_BaseListApplicationView):
     """
 
     def get_queryset(self):
+        user_qs = User.objects.prefetch_related("groups")
         if self.request.user.is_superuser:
-            return Application.objects.filter(
-                ~Q(partner__authorization_method=Partner.BUNDLE),
-                status__in=[Application.PENDING, Application.QUESTION],
-                parent__isnull=False,
-                editor__isnull=False,
-            ).order_by("-date_created")
+            return (
+                Application.objects.select_related("partner")
+                .prefetch_related("editor")
+                .prefetch_related(Prefetch("sent_by", queryset=user_qs))
+                .filter(
+                    ~Q(partner__authorization_method=Partner.BUNDLE),
+                    status__in=[Application.PENDING, Application.QUESTION],
+                    parent__isnull=False,
+                    editor__isnull=False,
+                )
+                .order_by("-date_created")
+            )
         else:
-            return Application.objects.filter(
-                ~Q(partner__authorization_method=Partner.BUNDLE),
-                status__in=[Application.PENDING, Application.QUESTION],
-                partner__coordinator__pk=self.request.user.pk,
-                parent__isnull=False,
-                editor__isnull=False,
-            ).order_by("-date_created")
+            return (
+                Application.objects.select_related("partner")
+                .prefetch_related("editor")
+                .prefetch_related(Prefetch("sent_by", queryset=user_qs))
+                .filter(
+                    ~Q(partner__authorization_method=Partner.BUNDLE),
+                    status__in=[Application.PENDING, Application.QUESTION],
+                    partner__coordinator__pk=self.request.user.pk,
+                    parent__isnull=False,
+                    editor__isnull=False,
+                )
+                .order_by("-date_created")
+            )
 
     def get_context_data(self, **kwargs):
         context = super(ListRenewalApplicationsView, self).get_context_data(**kwargs)
