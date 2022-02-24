@@ -641,19 +641,32 @@ class ListApprovedApplicationsView(_BaseListApplicationView):
 
 class ListRejectedApplicationsView(_BaseListApplicationView):
     def get_queryset(self):
+        user_qs = User.objects.prefetch_related("groups")
         if self.request.user.is_superuser:
-            return Application.include_invalid.filter(
-                ~Q(partner__authorization_method=Partner.BUNDLE),
-                status__in=[Application.NOT_APPROVED, Application.INVALID],
-                editor__isnull=False,
-            ).order_by("date_closed", "partner")
+            return (
+                Application.include_invalid.select_related("partner")
+                .prefetch_related("editor")
+                .prefetch_related(Prefetch("sent_by", queryset=user_qs))
+                .filter(
+                    ~Q(partner__authorization_method=Partner.BUNDLE),
+                    status__in=[Application.NOT_APPROVED, Application.INVALID],
+                    editor__isnull=False,
+                )
+                .order_by("date_closed", "partner")
+            )
         else:
-            return Application.include_invalid.filter(
-                ~Q(partner__authorization_method=Partner.BUNDLE),
-                status__in=[Application.NOT_APPROVED, Application.INVALID],
-                partner__coordinator__pk=self.request.user.pk,
-                editor__isnull=False,
-            ).order_by("date_closed", "partner")
+            return (
+                Application.include_invalid.select_related("partner")
+                .prefetch_related("editor")
+                .prefetch_related(Prefetch("sent_by", queryset=user_qs))
+                .filter(
+                    ~Q(partner__authorization_method=Partner.BUNDLE),
+                    status__in=[Application.NOT_APPROVED, Application.INVALID],
+                    partner__coordinator__pk=self.request.user.pk,
+                    editor__isnull=False,
+                )
+                .order_by("date_closed", "partner")
+            )
 
     def get_context_data(self, **kwargs):
         context = super(ListRejectedApplicationsView, self).get_context_data(**kwargs)
