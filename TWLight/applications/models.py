@@ -241,7 +241,8 @@ class Application(models.Model):
 
     def get_version_count(self):
         try:
-            return len(Version.objects.get_for_object(self))
+            performant_qs = self.prefetch_related("editor")
+            return len(Version.objects.get_for_object(performant_qs))
         except TypeError:
             # When we call this the *first* time we save an object, it will fail
             # as the object properties that reversion is looking for are not
@@ -250,7 +251,8 @@ class Application(models.Model):
 
     def get_latest_version(self):
         try:
-            return Version.objects.get_for_object(self)[0]
+            performant_qs = self.prefetch_related("editor")
+            return Version.objects.get_for_object(performant_qs)[0]
         except (TypeError, IndexError):
             # If no versions yet...
             return None
