@@ -554,9 +554,13 @@ class ListApplicationsView(_BaseListApplicationView):
         should be listed elsewhere: kept around for historical reasons, but kept
         off the main page to preserve utility (and limit load time).
         """
+        user_qs = User.objects.select_related("userprofile").prefetch_related("groups")
         if self.request.user.is_superuser:
             base_qs = (
-                Application.objects.filter(
+                Application.objects.select_related("partner")
+                .prefetch_related("editor")
+                .prefetch_related(Prefetch("sent_by", queryset=user_qs))
+                .filter(
                     ~Q(partner__authorization_method=Partner.BUNDLE),
                     status__in=[Application.PENDING, Application.QUESTION],
                     partner__status__in=[Partner.AVAILABLE, Partner.WAITLIST],
@@ -568,7 +572,10 @@ class ListApplicationsView(_BaseListApplicationView):
 
         else:
             base_qs = (
-                Application.objects.filter(
+                Application.objects.select_related("partner")
+                .prefetch_related("editor")
+                .prefetch_related(Prefetch("sent_by", queryset=user_qs))
+                .filter(
                     ~Q(partner__authorization_method=Partner.BUNDLE),
                     status__in=[Application.PENDING, Application.QUESTION],
                     partner__status__in=[Partner.AVAILABLE, Partner.WAITLIST],
