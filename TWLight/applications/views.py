@@ -23,7 +23,7 @@ from django.core.exceptions import PermissionDenied, ObjectDoesNotExist
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 from django.urls import reverse, reverse_lazy
 from django.db import IntegrityError
-from django.db.models import Q
+from django.db.models import Q, Prefetch
 from django.http import HttpResponseRedirect, HttpResponseBadRequest, Http404
 from django.shortcuts import get_object_or_404
 from django.utils.translation import gettext as _
@@ -600,9 +600,13 @@ class ListApplicationsView(_BaseListApplicationView):
 
 class ListApprovedApplicationsView(_BaseListApplicationView):
     def get_queryset(self):
+        user_qs = User.objects.prefetch_related("groups")
         if self.request.user.is_superuser:
             return (
-                Application.objects.filter(
+                Application.objects.select_related("partner")
+                .prefetch_related("editor")
+                .prefetch_related(Prefetch("sent_by", queryset=user_qs))
+                .filter(
                     ~Q(partner__authorization_method=Partner.BUNDLE),
                     status=Application.APPROVED,
                     editor__isnull=False,
@@ -612,7 +616,10 @@ class ListApprovedApplicationsView(_BaseListApplicationView):
             )
         else:
             return (
-                Application.objects.filter(
+                Application.objects.select_related("partner")
+                .prefetch_related("editor")
+                .prefetch_related(Prefetch("sent_by", queryset=user_qs))
+                .filter(
                     ~Q(partner__authorization_method=Partner.BUNDLE),
                     status=Application.APPROVED,
                     partner__coordinator__pk=self.request.user.pk,
@@ -623,7 +630,7 @@ class ListApprovedApplicationsView(_BaseListApplicationView):
             )
 
     def get_context_data(self, **kwargs):
-        context = super(ListApprovedApplicationsView, self).get_context_data(**kwargs)
+        context = super().get_context_data(**kwargs)
         # Translators: On the page listing applications, this is the page title if the coordinator has selected the list of 'Approved' applications.
         context["title"] = _("Approved applications")
 
