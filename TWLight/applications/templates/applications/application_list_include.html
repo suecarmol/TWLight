@@ -19,13 +19,13 @@
         {{ app }}
       </a>
       </h5>
-      {% if user.editor %}
-      Editor: <a class="twl-links" href="/users/{{ user.editor.pk|urlencode|safe }}">{{ user.editor.wp_username }}</a>
+      {% if app.user.editor %}
+      Editor: <a class="twl-links" href="/users/{{ app.user.editor.pk|urlencode|safe }}">{{ app.user.editor.wp_username }}</a>
       <br />
       {% endif %}
-      {% if user.email %}
+      {% if app.user.email %}
       Email:
-        <a class="twl-links" href="mailto:{{ user.email|urlencode|safe }}">{{ user.email|safe }}</a>
+        <a class="twl-links" href="mailto:{{ app.user.email|urlencode|safe }}">{{ app.user.email|safe }}</a>
       <br />
       {% endif %}
       {% if app.imported %}
@@ -48,8 +48,8 @@
         {% trans 'Not yet reviewed.' %}
       {% endif %}
       <br />
-      {% if user.editor %}
-      Filter by editor: <a class="twl-links" href="?Editor={{ user.editor.pk|urlencode|safe }}">{{ user.editor.wp_username }}</a>
+      {% if app.user.editor %}
+      Filter by editor: <a class="twl-links" href="?Editor={{ app.user.editor.pk|urlencode|safe }}">{{ app.user.editor.wp_username }}</a>
       &nbsp;&nbsp;&nbsp;
       {% endif %}
       Filter by partner: <a class="twl-links" href="?Partner={{ app.partner.pk|urlencode|safe }}">{{ app.partner }}</a>
