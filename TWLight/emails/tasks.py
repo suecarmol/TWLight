@@ -30,14 +30,14 @@ from django_comments.models import Comment
 from django_comments.signals import comment_was_posted
 from django.contrib.sites.shortcuts import get_current_site
 from django.urls import reverse_lazy
-from django.db.models.signals import pre_save
+from django.db.models.signals import pre_save, post_delete
 from django.dispatch import receiver
 from django.shortcuts import get_object_or_404
 
 from TWLight.applications.models import Application
 from TWLight.applications.signals import Reminder
 from TWLight.emails.signals import ContactUs
-from TWLight.resources.models import AccessCode, Partner
+from TWLight.resources.models import AccessCode, Partner, Suggestion
 from TWLight.users.groups import get_restricted
 from TWLight.users.signals import Notice
 
@@ -79,6 +79,10 @@ class CoordinatorReminderNotification(template_mail.TemplateMail):
 
 class UserRenewalNotice(template_mail.TemplateMail):
     name = "user_renewal_notice"
+
+
+class DeclineSuggestionNotification(template_mail.TemplateMail):
+    name = "decline_suggestion_notification"
 
 
 @receiver(Reminder.coordinator_reminder)
@@ -489,7 +493,6 @@ def notify_applicants_when_waitlisted(sender, instance, **kwargs):
         if (
             orig_partner.status != instance.status
         ) and instance.status == Partner.WAITLIST:
-
             for app in orig_partner.applications.filter(
                 status__in=[Application.PENDING, Application.QUESTION]
             ):
@@ -530,3 +533,14 @@ def contact_us_emails(sender, **kwargs):
     logger.info("Email constructed.")
     email.send()
     logger.info("Email queued.")
+
+
+@receiver(post_delete, sender=Suggestion)
+def decline_suggestion_notification(sender, instance, **kwargs):
+    """
+    When a suggestion is declined, an email is sent to the editor
+    with the reason why it was declined
+    """
+    decline_reason = kwargs["decline_reason"]
+    email = DeclineSuggestionNotification()
+    email.send(decline_reason)

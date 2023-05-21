@@ -1,7 +1,7 @@
 from django.core.cache import cache
 from django.dispatch import receiver, Signal
 from django.db.models.signals import pre_save, post_save, post_delete
-from TWLight.resources.models import Partner, PhabricatorTask
+from TWLight.resources.models import Partner, PhabricatorTask, Suggestion
 
 
 @receiver(post_save, sender=Partner)

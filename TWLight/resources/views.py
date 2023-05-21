@@ -459,7 +459,6 @@ class PartnerSuggestionView(FormView):
         return Suggestion.objects.order_by("suggested_company_name")
 
     def get_context_data(self, **kwargs):
-
         context = super(PartnerSuggestionView, self).get_context_data(**kwargs)
 
         user_qs = User.objects.select_related("editor")
@@ -519,14 +518,16 @@ class PartnerSuggestionView(FormView):
             raise PermissionDenied
 
 
-class SuggestionDeleteView(CoordinatorsOnly, DeleteView):
-    model = Suggestion
-    form_class = SuggestionForm
+class SuggestionDeclineView(CoordinatorsOnly, View):
+    http_method_names = ["post"]
     success_url = reverse_lazy("suggest")
 
-    def delete(self, *args, **kwargs):
-        suggestion = self.get_object()
+    def post(self, request, *args, **kwargs):
+        suggestion_id = int(request.POST["suggestion_id"])
+        suggestion = Suggestion.objects.get(suggestion_id)
         suggestion.delete()
+        reason = request.POST["decline_reason"]
+        # Send an email to tell the user why this suggestion was declined
         messages.add_message(
             self.request,
             messages.SUCCESS,
@@ -552,7 +553,6 @@ class SuggestionUpvoteView(EditorsOnly, RedirectView):
 
 @method_decorator(login_required, name="post")
 class SuggestionMergeView(StaffOnly, FormView):
-
     model = Suggestion
     template_name = "resources/merge_suggestion.html"
     form_class = SuggestionMergeForm
@@ -607,7 +607,6 @@ class SuggestionMergeView(StaffOnly, FormView):
         return context
 
     def form_valid(self, form):
-
         try:
             main_suggestion = form.cleaned_data["main_suggestion"]
             secondary_suggestions = Suggestion.objects.filter(

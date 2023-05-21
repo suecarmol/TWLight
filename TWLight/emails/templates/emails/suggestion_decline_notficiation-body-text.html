@@ -1,0 +1,13 @@
+{% load i18n %}
+{% comment %}Translators: This email is sent to users when their suggestion is declined. Don't translate Jinja variables in curly braces like {{ decline_reason }} .{% endcomment %}
+{% blocktranslate trimmed %}
+Hi,
+
+Thanks for making a partnership suggestion for The Wikipedia Library!
+
+Your suggestion has been reviewed and declined for the following reason:
+
+{{ decline_reason }}
+
+The Wikipedia Library team
+{% endblocktranslate %}

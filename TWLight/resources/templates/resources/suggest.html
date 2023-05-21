@@ -5,10 +5,6 @@
 {% load static %}
 {% load twlight_perms %}
 
-{% block head_javascript %}
-  <script type="text/javascript" language="javascript" src="{% static "js/jquery-3.5.1.min.js" %}"></script>
-{% endblock head_javascript %}
-
 {% block content %}
   {% include "header_partial_b4.html" %}
   {% include "message_partial.html" %}
@@ -52,9 +48,12 @@
             <div class="card full-width mb-4">
               <div class="card-header">
                 <div class="card-title pull-left"><span class="card-title">{{ each_suggestion.suggested_company_name }}</span></div>
-                {% if user_is_coordinator %}
-                  {% comment %}Translators: This button is at the partner suggestions page for coordinators to delete suggestions. {% endcomment %}
-                  <a href="{% url 'suggest-delete' each_suggestion.id %}" class="btn btn-outline-danger pull-right">{% trans 'Delete' %} <i class="fa fa-trash-o" aria-hidden="true"></i></a>
+                {% if user.is_staff %}
+                  {% comment %}Translators: This button is at the partner suggestions page for coordinators to decline a suggestion. {% endcomment %}
+                  <button id="decline-suggestion" class="btn btn-outline-danger pull-right" data-toggle="modal" data-target="#decline-modal-{{each_suggestion.id}}"
+                    data-suggestionId="{{ each_suggestion.id }}" data-suggestionName="{{ each_suggestion.suggested_company_name }}">
+                    {% trans 'Decline' %} <i class="fa fa-trash-o" aria-hidden="true"></i>
+                  </button>
                 {% endif %}
                 <div class="clearfix"></div>
               </div>
@@ -111,6 +110,32 @@
                 </div>
               </div>
             </div>
+            <div id="decline-modal-{{each_suggestion.id}}" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="decline-modal-label" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="decline-modal-label">Decline and Delete {{each_suggestion.suggested_company_name}}</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                    <p> Please add a reason why you are declining this suggestion. 
+                      An email will be sent to the suggester with the reason for declining the suggestion. 
+                    </p>
+                    <form method="POST" action="{% url 'suggest-decline' %}">
+                      {% csrf_token %}
+                      <textarea class="form-control" name="decline_reason"> </textarea>
+                      <input type="hidden" name="suggestion_id" value="{{each_suggestion.id}}" />
+                    </form>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    <a id="submit-decline-button" class="btn twl-btn"> Decline suggestion </a>
+                  </div>
+                </div>
+              </div>
+            </div>
           {% endfor %}
         </div>
       </div>
@@ -161,5 +186,13 @@
   </script>
   <script>
     function viewUpvoters(e,suggestion,box){}
+  </script>
+  <script>
+    $('#decline-suggestion').click(function(e){
+      var suggestionId = this.dataset.suggestionid;
+      $("#decline-modal-"+suggestionId).modal({
+        keyboard: true
+      });
+    });
   </script>
 {% endblock javascript %}
